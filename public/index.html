@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Local Business Platform - Find Restaurants, Salons, Gyms & More</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <!-- Header Navigation -->
+  <header>
+    <div class="nav-container">
+      <div class="logo">
+        💼 Local<span>Business</span>
+      </div>
+      <div class="nav-actions" style="display: flex; align-items: center; gap: 1rem;">
+        <button class="theme-toggle-btn" aria-label="Toggle Theme">🌙</button>
+        <a href="/admin-login.html" class="btn btn-secondary btn-sm" style="text-decoration: none; font-weight: 600;">Admin Portal</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Auth Wrapper -->
+  <main class="auth-wrapper">
+    <div class="auth-container glass-container">
+      <!-- Tabs header -->
+      <div class="auth-tabs">
+        <div class="auth-tab active" id="tab-login" onclick="switchTab('login')">Login</div>
+        <div class="auth-tab" id="tab-register" onclick="switchTab('register')">Register</div>
+      </div>
+
+      <!-- Login Form -->
+      <form id="login-form" onsubmit="handleLogin(event)">
+        <h2 style="margin-bottom: 1.5rem; text-align: center; font-family: var(--font-heading);">Welcome Back</h2>
+        
+        <div class="form-group">
+          <label for="login-email">Email Address</label>
+          <input type="email" id="login-email" class="form-control" placeholder="name@example.com" required autocomplete="email">
+        </div>
+
+        <div class="form-group">
+          <label for="login-password">Password</label>
+          <input type="password" id="login-password" class="form-control" placeholder="••••••••" required autocomplete="current-password">
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block" style="margin-top: 1rem;">
+          Sign In
+        </button>
+      </form>
+
+      <!-- Registration Form (Hidden by default) -->
+      <form id="register-form" onsubmit="handleRegister(event)" style="display: none;">
+        <h2 style="margin-bottom: 1.5rem; text-align: center; font-family: var(--font-heading);">Create Account</h2>
+        
+        <div class="form-group">
+          <label for="register-name">Full Name</label>
+          <input type="text" id="register-name" class="form-control" placeholder="John Doe" required autocomplete="name">
+        </div>
+
+        <div class="form-group">
+          <label for="register-email">Email Address</label>
+          <input type="email" id="register-email" class="form-control" placeholder="john@example.com" required autocomplete="email">
+        </div>
+
+        <div class="form-group">
+          <label for="register-password">Password</label>
+          <input type="password" id="register-password" class="form-control" placeholder="Minimum 6 characters" minlength="6" required autocomplete="new-password">
+        </div>
+
+        <div class="form-group">
+          <label>I want to join as a:</label>
+          <div class="role-selector">
+            <div class="role-option">
+              <input type="radio" id="role-user" name="register-role" value="user" checked onclick="toggleShopkeeperFields(false)">
+              <label for="role-user" class="role-label">Customer</label>
+            </div>
+            <div class="role-option">
+              <input type="radio" id="role-shopkeeper" name="register-role" value="shopkeeper" onclick="toggleShopkeeperFields(true)">
+              <label for="role-shopkeeper" class="role-label">Shopkeeper</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Shopkeeper Specific Fields (Toggled dynamically) -->
+        <div id="shopkeeper-extra-fields" style="display: none; border-top: 1px solid var(--border-color); padding-top: 1.5rem; margin-top: 1.5rem; animation: fadeIn 0.3s ease;">
+          <h3 style="font-family: var(--font-heading); font-size: 1.1rem; margin-bottom: 1rem; color: var(--primary-color);">Shop Verification Details</h3>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+              <label for="register-shop-name">Shop Name *</label>
+              <input type="text" id="register-shop-name" class="form-control" placeholder="e.g. Siva Tiffins">
+            </div>
+            <div class="form-group">
+              <label for="register-shop-category">Shop Category *</label>
+              <select id="register-shop-category" class="form-control">
+                <option value="Hotels">🏨 Hotels</option>
+                <option value="Restaurants">🍔 Restaurants</option>
+                <option value="Tiffins" selected>🥞 Tiffins</option>
+                <option value="Salons">💇 Salons</option>
+                <option value="Parlours">💅 Parlours</option>
+                <option value="Stores">🛒 Stores</option>
+                <option value="Markets">🍎 Markets</option>
+                <option value="Gyms">💪 Gyms</option>
+                <option value="Cafes">☕ Cafes</option>
+                <option value="Clubs">🎉 Clubs</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="register-shop-address">Shop Address *</label>
+            <textarea id="register-shop-address" class="form-control" placeholder="Complete address of your shop location..." rows="2"></textarea>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+              <label for="register-ownership">Ownership Status *</label>
+              <select id="register-ownership" class="form-control">
+                <option value="Rented">Rented</option>
+                <option value="Lease">Lease</option>
+                <option value="Owned">Owned</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="register-license">License Number</label>
+              <input type="text" id="register-license" class="form-control" placeholder="e.g. LIC-998811">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="register-business-phone">Business Contact Phone</label>
+            <input type="text" id="register-business-phone" class="form-control" placeholder="e.g. 9884464444">
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block" style="margin-top: 1.5rem;">
+          Create Account
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <script src="/js/auth.js"></script>
+  <script>
+    // Redirect logged-in users away from the landing page
+    if (auth.isLoggedIn()) {
+      auth.protectPage();
+    }
+
+    // Switch between Login and Register tabs
+    function switchTab(mode) {
+      const loginForm = document.getElementById('login-form');
+      const registerForm = document.getElementById('register-form');
+      const tabLogin = document.getElementById('tab-login');
+      const tabRegister = document.getElementById('tab-register');
+
+      if (mode === 'login') {
+        loginForm.style.display = 'block';
+        registerForm.style.display = 'none';
+        tabLogin.classList.add('active');
+        tabRegister.classList.remove('active');
+      } else {
+        loginForm.style.display = 'none';
+        registerForm.style.display = 'block';
+        tabLogin.classList.remove('active');
+        tabRegister.classList.add('active');
+      }
+    }
+
+    // Handle Login API call
+    async function handleLogin(e) {
+      e.preventDefault();
+      
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+
+      try {
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          auth.showToast('Login successful! Redirecting...', 'success');
+          // Save session
+          auth.saveSession(data.token, data.user);
+          // Redirect based on role
+          setTimeout(() => {
+            auth.protectPage();
+          }, 1000);
+        } else {
+          auth.showToast(data.message || 'Login failed. Please check credentials.', 'error');
+        }
+      } catch (err) {
+        console.error(err);
+        auth.showToast('Network error, please try again.', 'error');
+      }
+    }
+
+    // Dynamic toggle of shopkeeper fields
+    function toggleShopkeeperFields(show) {
+      const extraFields = document.getElementById('shopkeeper-extra-fields');
+      const shopName = document.getElementById('register-shop-name');
+      const shopAddress = document.getElementById('register-shop-address');
+
+      if (show) {
+        extraFields.style.display = 'block';
+        shopName.setAttribute('required', 'required');
+        shopAddress.setAttribute('required', 'required');
+      } else {
+        extraFields.style.display = 'none';
+        shopName.removeAttribute('required');
+        shopAddress.removeAttribute('required');
+      }
+    }
+
+    // Handle Registration API call
+    async function handleRegister(e) {
+      e.preventDefault();
+
+      const name = document.getElementById('register-name').value;
+      const email = document.getElementById('register-email').value;
+      const password = document.getElementById('register-password').value;
+      const role = document.querySelector('input[name="register-role"]:checked').value;
+
+      const payload = { name, email, password, role };
+
+      if (role === 'shopkeeper') {
+        payload.shop_name = document.getElementById('register-shop-name').value;
+        payload.shop_address = document.getElementById('register-shop-address').value;
+        payload.ownership_type = document.getElementById('register-ownership').value;
+        payload.license_number = document.getElementById('register-license').value;
+        payload.business_phone = document.getElementById('register-business-phone').value;
+        payload.shop_category = document.getElementById('register-shop-category').value;
+      }
+
+      try {
+        const response = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          auth.showToast('Registration successful! Logging in...', 'success');
+          auth.saveSession(data.token, data.user);
+          setTimeout(() => {
+            auth.protectPage();
+          }, 1000);
+        } else {
+          auth.showToast(data.message || 'Registration failed.', 'error');
+        }
+      } catch (err) {
+        console.error(err);
+        auth.showToast('Network error, please try again.', 'error');
+      }
+    }
+  </script>
+</body>
+</html>

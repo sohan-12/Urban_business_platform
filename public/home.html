@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home - Local Business Platform</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <!-- Navigation Header -->
+  <header>
+    <div class="nav-container">
+      <div class="logo" onclick="window.location.reload()" style="cursor: pointer;">
+        💼 Local<span>Business</span>
+      </div>
+      <div class="nav-actions">
+        <span class="nav-user" id="user-display">
+          Loading User...
+        </span>
+        <button class="theme-toggle-btn" aria-label="Toggle Theme">🌙</button>
+        <button class="btn btn-secondary btn-sm" onclick="auth.logout()">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Search Banner -->
+  <section class="hero-section">
+    <div class="hero-content">
+      <h1 class="hero-title">Find the Best Local Services</h1>
+      <p class="hero-subtitle">Discover top-rated restaurants, gyms, salons, shops, and tiffins in your community.</p>
+      
+      <form class="search-container" onsubmit="triggerSearch(event)">
+        <input type="text" id="search-input" class="search-input" placeholder="What are you looking for? (e.g. Pizza, Gym, Salon...)">
+        <button type="submit" class="btn btn-primary search-btn">Search</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- Filters Area -->
+  <section class="filters-wrapper">
+    <h3 class="filter-heading">Filter by Category</h3>
+    <div class="categories-grid" id="category-filters-container">
+      <button class="category-chip active" data-category="">All Categories</button>
+      <button class="category-chip" data-category="Hotels">🏨 Hotels</button>
+      <button class="category-chip" data-category="Restaurants">🍔 Restaurants</button>
+      <button class="category-chip" data-category="Tiffins">🥞 Tiffins</button>
+      <button class="category-chip" data-category="Salons">💇 Salons</button>
+      <button class="category-chip" data-category="Parlours">💅 Parlours</button>
+      <button class="category-chip" data-category="Stores">🛒 Stores</button>
+      <button class="category-chip" data-category="Markets">🍎 Markets</button>
+      <button class="category-chip" data-category="Gyms">💪 Gyms</button>
+      <button class="category-chip" data-category="Cafes">☕ Cafes</button>
+      <button class="category-chip" data-category="Clubs">🎉 Clubs</button>
+    </div>
+  </section>
+
+  <!-- Businesses Main Grid -->
+  <main class="main-wrapper">
+    <div class="section-header">
+      <h2 id="listings-title">Trending Businesses</h2>
+      <span class="review-count" id="listings-count">Showing 0 listings</span>
+    </div>
+
+    <div class="grid-layout" id="businesses-grid">
+      <!-- Cards will load dynamically -->
+      <div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: var(--text-muted);">
+        <p>Loading business listings...</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Detailed Business Modal -->
+  <div class="modal-overlay" id="business-modal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <h2 id="modal-biz-name">Business Name</h2>
+          <div style="display: flex; gap: 0.5rem; align-items: center; margin-top: 0.3rem;">
+            <span class="nav-role-badge" id="modal-biz-category" style="margin-left:0; font-size:0.7rem;">Category</span>
+            <span id="modal-biz-price" style="font-weight: 800; color: var(--success-color); font-size: 0.85rem;">$$</span>
+            <div class="rating-container" style="margin-bottom:0; margin-left: 0.5rem;">
+              <span class="stars" id="modal-biz-stars">★★★★★</span>
+              <span class="rating-value" id="modal-biz-rating-val">4.5</span>
+              <span class="review-count" id="modal-biz-reviews-count">(10 reviews)</span>
+            </div>
+          </div>
+        </div>
+        <button class="modal-close-btn" onclick="closeModal()">×</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Inner Modal Tabs -->
+        <div class="modal-tabs">
+          <div class="modal-tab active" id="m-tab-about" onclick="switchModalTab('about')">About & Map</div>
+          <div class="modal-tab" id="m-tab-items" onclick="switchModalTab('items')">Menu / Products</div>
+          <div class="modal-tab" id="m-tab-reviews" onclick="switchModalTab('reviews')">Reviews</div>
+        </div>
+
+        <!-- Tab 1: About -->
+        <div class="tab-pane active" id="pane-about">
+          <div style="margin-bottom: 1.5rem;">
+            <h3 style="font-family:var(--font-heading); margin-bottom: 0.5rem; font-size:1.2rem;">Description</h3>
+            <p id="modal-biz-desc" style="color: var(--text-muted); font-size: 0.95rem;">No description provided.</p>
+          </div>
+          
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem; margin-bottom: 1.5rem; padding: 1.2rem; border-radius: var(--border-radius-md); border:1px solid var(--border-color); background-color: rgba(148, 163, 184, 0.02);">
+            <div>
+              <h4 style="font-size:0.9rem; text-transform:uppercase; color:var(--text-muted); margin-bottom:0.2rem;">Address</h4>
+              <p id="modal-biz-address" style="font-weight: 600; font-size:0.95rem;">-</p>
+            </div>
+            <div>
+              <h4 style="font-size:0.9rem; text-transform:uppercase; color:var(--text-muted); margin-bottom:0.2rem;">Phone Contact</h4>
+              <p id="modal-biz-phone" style="font-weight: 600; font-size:0.95rem;">-</p>
+            </div>
+          </div>
+
+          <button id="modal-biz-map-btn" class="btn btn-primary btn-block">
+            📍 View Directions on Google Maps
+          </button>
+        </div>
+
+        <!-- Tab 2: Products -->
+        <div class="tab-pane" id="pane-items">
+          <div class="items-list" id="modal-items-list">
+            <!-- Items loaded dynamically -->
+          </div>
+        </div>
+
+        <!-- Tab 3: Reviews -->
+        <div class="tab-pane" id="pane-reviews">
+          <!-- Add review section -->
+          <div class="add-review-section">
+            <h3 style="font-size: 1.1rem; margin-bottom: 0.8rem; font-family: var(--font-heading);">Submit Your Review</h3>
+            
+            <div class="rating-select">
+              <span class="rating-star-btn" data-value="1" onclick="setReviewRating(1)">★</span>
+              <span class="rating-star-btn" data-value="2" onclick="setReviewRating(2)">★</span>
+              <span class="rating-star-btn" data-value="3" onclick="setReviewRating(3)">★</span>
+              <span class="rating-star-btn" data-value="4" onclick="setReviewRating(4)">★</span>
+              <span class="rating-star-btn" data-value="5" onclick="setReviewRating(5)">★</span>
+            </div>
+
+            <div class="form-group">
+              <textarea id="review-comment" class="form-control" placeholder="Share your experience with this business..." rows="3"></textarea>
+            </div>
+
+            <button type="button" class="btn btn-primary btn-sm" onclick="submitReview()">Submit Review</button>
+          </div>
+
+          <!-- Reviews List -->
+          <div class="reviews-list" id="modal-reviews-list">
+            <!-- Reviews loaded dynamically -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/auth.js"></script>
+  <script src="/js/home.js"></script>
+</body>
+</html>

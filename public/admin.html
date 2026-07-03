@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Local Business Platform</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <!-- Navigation Header -->
+  <header>
+    <div class="nav-container">
+      <div class="logo">
+        💼 Local<span>Business</span>
+      </div>
+      <div class="nav-actions">
+        <span class="nav-user" id="user-display">
+          Loading User...
+        </span>
+        <button class="theme-toggle-btn" aria-label="Toggle Theme">🌙</button>
+        <button class="btn btn-secondary btn-sm" onclick="auth.logout()">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-wrapper" style="padding-top: 3rem;">
+    <div class="section-header" style="margin-bottom: 2rem;">
+      <div>
+        <h1 style="font-family: var(--font-heading); font-size: 2.2rem;">Admin Platform Control</h1>
+        <p style="color: var(--text-muted);">Oversee business directories, assign shopkeepers, and monitor analytics.</p>
+      </div>
+    </div>
+
+    <!-- Notification Banner -->
+    <div id="admin-notification-banner" class="glass-container" style="display: none; background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(245, 158, 11, 0.05) 100%); border: 1.5px solid var(--warning-color); padding: 1.25rem 2rem; border-radius: var(--border-radius-lg); margin-bottom: 2rem; align-items: center; justify-content: space-between; gap: 1.5rem;">
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        <span style="font-size: 1.8rem;">🔔</span>
+        <div>
+          <h4 style="font-family: var(--font-heading); margin: 0; color: var(--warning-color); font-size: 1.1rem;">Pending Shop Listing Requests</h4>
+          <p style="margin: 0.1rem 0 0 0; font-size: 0.9rem; color: var(--text-muted);">
+            Shopkeepers have submitted <strong id="notification-count" style="color: var(--text-main);">0</strong> new store requests awaiting your approval.
+          </p>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="scrollToPendingSection()" style="background-color: var(--warning-color); border-color: var(--warning-color); color: #000; font-weight: 700;">
+        Review Requests
+      </button>
+    </div>
+
+    <!-- Admin Platform Analytics -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-title">Shops Registered</span>
+        <span class="stat-value" id="stat-shops-count">0</span>
+        <span class="stat-desc">Active listings in database</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-title">Products Listed</span>
+        <span class="stat-value" id="stat-items-count">0</span>
+        <span class="stat-desc">Shopkeeper inventory items</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-title">Reviews Submitted</span>
+        <span class="stat-value" id="stat-reviews-count">0</span>
+        <span class="stat-desc">Ratings and comments</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-title">System Users</span>
+        <span class="stat-value" id="stat-users-count">0</span>
+        <span class="stat-desc" id="stat-users-breakdown">Loading users...</span>
+      </div>
+    </div>
+
+    <!-- Pending Approvals Directory -->
+    <section class="glass-container" id="pending-requests-section" style="padding: 2rem; border-radius: var(--border-radius-lg); background-color: var(--bg-card); margin-bottom: 2.5rem; display: none;">
+      <div class="section-header" style="margin-bottom: 1.5rem;">
+        <h2 style="font-family: var(--font-heading); font-size: 1.4rem; color: var(--warning-color);">Pending Shopkeeper Applications</h2>
+        <span class="review-count" id="pending-count">0 pending requests</span>
+      </div>
+
+      <div class="table-responsive">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Shopkeeper</th>
+              <th>Proposed Shop</th>
+              <th>Category</th>
+              <th>Address & Phone</th>
+              <th>Proposed Products / Menu</th>
+              <th style="width: 180px; text-align: center;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="pending-table-body">
+            <tr>
+              <td colspan="6" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                No pending registration requests.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Directory Directory Search & Add -->
+    <section class="glass-container" style="padding: 2rem; border-radius: var(--border-radius-lg); background-color: var(--bg-card);">
+      <div class="section-header" style="margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+        <h2 style="font-family: var(--font-heading); font-size: 1.4rem;">Business Directory Listings</h2>
+        
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
+          <input type="text" id="dir-search-input" class="form-control" placeholder="Search by name, address..." oninput="filterDirectory()" style="width: auto; min-width: 250px; padding: 0.5rem 1rem;">
+          <button class="btn btn-primary btn-sm" onclick="openBusinessModal('add')">✚ Add Business</button>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Business Name</th>
+              <th>Category</th>
+              <th>Address</th>
+              <th>Assigned Shopkeeper</th>
+              <th>Rating</th>
+              <th style="width: 150px; text-align: center;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="directory-table-body">
+            <tr>
+              <td colspan="6" style="text-align: center; padding: 3rem; color: var(--text-muted);">
+                Loading directory database...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- Add / Edit Business Modal -->
+  <div class="modal-overlay" id="biz-modal">
+    <div class="modal-container" style="max-width: 580px;">
+      <div class="modal-header">
+        <h2 id="biz-modal-title" style="font-family: var(--font-heading);">Add Business</h2>
+        <button class="modal-close-btn" onclick="closeBusinessModal()">×</button>
+      </div>
+
+      <div class="modal-body">
+        <form id="biz-form" onsubmit="handleBusinessSubmit(event)">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+              <label for="biz-name">Business Name *</label>
+              <input type="text" id="biz-name" class="form-control" placeholder="e.g. Pizza Hut" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="biz-category">Category *</label>
+              <select id="biz-category" class="form-control" required>
+                <option value="Hotels">🏨 Hotels</option>
+                <option value="Restaurants">🍔 Restaurants</option>
+                <option value="Tiffins">🥞 Tiffins</option>
+                <option value="Salons">💇 Salons</option>
+                <option value="Parlours">💅 Parlours</option>
+                <option value="Stores">🛒 Stores</option>
+                <option value="Markets">🍎 Markets</option>
+                <option value="Gyms">💪 Gyms</option>
+                <option value="Cafes">☕ Cafes</option>
+                <option value="Clubs">🎉 Clubs</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="biz-description">Description</label>
+            <textarea id="biz-description" class="form-control" placeholder="Describe the business (specialties, hours, details)..." rows="3"></textarea>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 1rem;">
+            <div class="form-group">
+              <label for="biz-address">Full Address *</label>
+              <input type="text" id="biz-address" class="form-control" placeholder="e.g. Madhapur, Hyderabad" required>
+            </div>
+            <div class="form-group">
+              <label for="biz-price">Price Range</label>
+              <select id="biz-price" class="form-control">
+                <option value="$">$ (Inexpensive)</option>
+                <option value="$$" selected>$$ (Moderate)</option>
+                <option value="$$$">$$$ (Expensive)</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+            <div class="form-group" style="grid-column: span 1;">
+              <label for="biz-phone">Phone Contact</label>
+              <input type="text" id="biz-phone" class="form-control" placeholder="e.g. 9884464444">
+            </div>
+            <div class="form-group">
+              <label for="biz-latitude">Latitude</label>
+              <input type="number" id="biz-latitude" class="form-control" placeholder="e.g. 17.4483" step="0.000001" min="-90" max="90">
+            </div>
+            <div class="form-group">
+              <label for="biz-longitude">Longitude</label>
+              <input type="number" id="biz-longitude" class="form-control" placeholder="e.g. 78.3741" step="0.000001" min="-180" max="180">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="biz-owner">Assign Shopkeeper (Owner)</label>
+            <select id="biz-owner" class="form-control">
+              <option value="">-- None (Unassigned) --</option>
+              <!-- Loaded dynamically -->
+            </select>
+            <small style="color:var(--text-muted); font-size:0.75rem; margin-top:0.25rem; display:block;">
+              Only users registered with the "Shopkeeper" role will show up here.
+            </small>
+          </div>
+
+          <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+            <button type="button" class="btn btn-secondary" onclick="closeBusinessModal()" style="flex: 1;">Cancel</button>
+            <button type="submit" class="btn btn-primary" style="flex: 1;" id="biz-submit-btn">Save Listing</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/auth.js"></script>
+  <script src="/js/admin.js"></script>
+</body>
+</html>

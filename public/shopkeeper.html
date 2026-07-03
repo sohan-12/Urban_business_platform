@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shopkeeper Dashboard - Local Business Platform</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <!-- Navigation Header -->
+  <header>
+    <div class="nav-container">
+      <div class="logo">
+        💼 Local<span>Business</span>
+      </div>
+      <div class="nav-actions">
+        <span class="nav-user" id="user-display">
+          Loading User...
+        </span>
+        <button class="theme-toggle-btn" aria-label="Toggle Theme">🌙</button>
+        <button class="btn btn-secondary btn-sm" onclick="auth.logout()">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-wrapper" style="padding-top: 3rem;">
+    <div class="section-header" style="margin-bottom: 2rem;">
+      <div>
+        <h1 style="font-family: var(--font-heading); font-size: 2.2rem;">Shopkeeper Dashboard</h1>
+        <p style="color: var(--text-muted);">Manage your listed shops, products, and see customer reviews.</p>
+      </div>
+    </div>
+
+    <!-- Shopkeeper Statistics -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-title">Shops Listed</span>
+        <span class="stat-value" id="stat-shops-count">0</span>
+        <span class="stat-desc">Approved by platform admin</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-title">Total Products</span>
+        <span class="stat-value" id="stat-items-count">0</span>
+        <span class="stat-desc">Active items across all shops</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-title">Customer Reviews</span>
+        <span class="stat-value" id="stat-reviews-count">0</span>
+        <span class="stat-desc">Reviews received from customers</span>
+      </div>
+    </div>
+
+    <!-- Shop Selector Dropdown -->
+    <div class="glass-container" style="padding: 1.5rem; border-radius: var(--border-radius-lg); margin-bottom: 2rem; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap;">
+      <div style="display: flex; align-items: center; gap: 1rem; flex: 1; min-width: 250px; flex-wrap: wrap;">
+        <label for="shop-selector" style="font-weight: 700; white-space: nowrap; font-family: var(--font-heading);">Select Shop to Manage:</label>
+        <select id="shop-selector" class="form-control" onchange="loadSelectedShopData()" style="width: auto; min-width: 200px;">
+          <!-- Options loaded dynamically -->
+        </select>
+        <button class="btn btn-secondary btn-sm" id="btn-request-another-shop" onclick="toggleRequestShopForm(true)" style="padding: 0.5rem 1rem; font-size: 0.85rem; font-weight: 700;">
+          ✚ Request Another Shop
+        </button>
+      </div>
+      <div id="shop-meta-info" style="font-size: 0.9rem; color: var(--text-muted); font-weight: 500;">
+        <!-- Loading... -->
+      </div>
+    </div>
+
+    <!-- Pending Approval View -->
+    <div id="pending-approval-view" style="display: none; text-align: center; padding: 4rem 2rem; border-radius: var(--border-radius-lg); border: 1.5px dashed var(--warning-color); background-color: var(--bg-card); margin-bottom: 2rem; animation: fadeIn 0.4s ease;">
+      <span style="font-size: 4rem;">⏳</span>
+      <h2 style="font-family: var(--font-heading); margin-top: 1rem; margin-bottom: 0.5rem; color: var(--warning-color);">Shop Listing Request Pending</h2>
+      <p style="color: var(--text-muted); max-width: 600px; margin: 0 auto 1.5rem auto; font-size: 1.05rem;">
+        Your request to list <strong id="pending-shop-name" style="color: var(--text-main);">--</strong> is currently pending review by the platform administrator.
+      </p>
+      <div style="font-size: 0.9rem; color: var(--text-muted); padding: 1rem; background-color: rgba(245, 158, 11, 0.05); border-radius: var(--border-radius-md); display: inline-block; margin-bottom: 1.5rem;">
+        Category: <strong id="pending-shop-category" style="color: var(--text-main);">--</strong> | 
+        Address: <strong id="pending-shop-address" style="color: var(--text-main);">--</strong>
+      </div>
+
+      <div id="pending-items-display" style="margin-top: 0.5rem; text-align: left; max-width: 500px; margin-left: auto; margin-right: auto; padding: 1.5rem; background: rgba(255,255,255,0.01); border-radius: var(--border-radius-md); border: 1px solid var(--border-color);">
+        <h4 style="font-family: var(--font-heading); margin-bottom: 0.75rem; font-size: 1rem; color: var(--accent-color);">Proposed Products / Menu:</h4>
+        <ul id="pending-items-list" style="margin: 0; padding-left: 1.2rem; font-size: 0.9rem; line-height: 1.5; color: var(--text-muted);">
+          <!-- Dynamic items -->
+        </ul>
+      </div>
+
+      <p style="margin-top: 2rem; font-size: 0.85rem; color: var(--text-muted);">
+        Once approved by the admin, your shop will be listed automatically and you can start managing products and orders here.
+      </p>
+    </div>
+
+    <!-- Shop Listing Request View (shown if no shops & no pending requests) -->
+    <div id="request-shop-view" style="display: none; max-width: 800px; margin: 0 auto 3rem auto; animation: fadeIn 0.4s ease;">
+      <div class="glass-container" style="padding: 2.5rem; border-radius: var(--border-radius-lg); background-color: var(--bg-card); box-shadow: var(--shadow-lg);">
+        <div style="text-align: center; margin-bottom: 2rem;">
+          <span style="font-size: 3rem;">🏬</span>
+          <h2 style="font-family: var(--font-heading); margin-top: 0.5rem; font-size: 1.8rem; color: var(--primary-color);">Request Shop Listing</h2>
+          <p style="color: var(--text-muted); font-size: 0.95rem; max-width: 500px; margin: 0.25rem auto 0 auto;">
+            Submit your shop details and proposed menu items to the administrator for verification. Once granted, you can start managing your store.
+          </p>
+        </div>
+
+        <form id="shop-request-form" onsubmit="submitShopRequest(event)">
+          <h3 style="font-family: var(--font-heading); font-size: 1.2rem; margin-bottom: 1rem; color: var(--accent-color); border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">1. Shop Information</h3>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.25rem;">
+            <div class="form-group">
+              <label for="req-shop-name" style="font-weight: 600;">Shop Name *</label>
+              <input type="text" id="req-shop-name" class="form-control" placeholder="e.g. Bella Italia Café" required>
+            </div>
+            <div class="form-group">
+              <label for="req-shop-category" style="font-weight: 600;">Category *</label>
+              <select id="req-shop-category" class="form-control" required>
+                <option value="Hotels">🏨 Hotels</option>
+                <option value="Restaurants">🍔 Restaurants</option>
+                <option value="Tiffins">🥞 Tiffins</option>
+                <option value="Salons">💇 Salons</option>
+                <option value="Parlours">💅 Parlours</option>
+                <option value="Stores">🛒 Stores</option>
+                <option value="Markets">🍎 Markets</option>
+                <option value="Gyms">💪 Gyms</option>
+                <option value="Cafes">☕ Cafes</option>
+                <option value="Clubs">🎉 Clubs</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 1.25rem;">
+            <label for="req-shop-description" style="font-weight: 600;">Description</label>
+            <textarea id="req-shop-description" class="form-control" placeholder="Briefly describe your shop (specialties, services)..." rows="2"></textarea>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 1.5rem; margin-bottom: 1.25rem;">
+            <div class="form-group">
+              <label for="req-shop-address" style="font-weight: 600;">Shop Address *</label>
+              <input type="text" id="req-shop-address" class="form-control" placeholder="e.g. Madhapur, Hyderabad" required>
+            </div>
+            <div class="form-group">
+              <label for="req-shop-phone" style="font-weight: 600;">Business Phone</label>
+              <input type="text" id="req-shop-phone" class="form-control" placeholder="e.g. 9884464444">
+            </div>
+          </div>
+
+          <h3 style="font-family: var(--font-heading); font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; color: var(--accent-color); border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">2. Add Proposed Products / Menu Items</h3>
+          
+          <div id="request-menu-items" style="margin-bottom: 1.5rem;">
+            <!-- Menu item rows will be added here -->
+          </div>
+          
+          <button type="button" class="btn btn-secondary btn-sm" onclick="addRequestMenuItemRow()" style="margin-bottom: 2rem;">
+            ✚ Add Product Row
+          </button>
+
+          <div style="display: flex; gap: 1rem;">
+            <button type="button" class="btn btn-secondary" id="btn-cancel-request" onclick="toggleRequestShopForm(false)" style="flex: 1; display: none;">
+              Cancel & Back
+            </button>
+            <button type="submit" class="btn btn-primary" style="flex: 2; padding: 0.8rem; font-size: 1rem; font-weight: 700;">
+              Submit Listing Request to Admin
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Empty State for Shopkeeper with no shops -->
+    <div id="no-shops-view" style="display: none; text-align: center; padding: 5rem; border-radius: var(--border-radius-lg); border: 1.5px dashed var(--border-color); background-color: var(--bg-card);">
+      <span style="font-size: 4rem;">🏬</span>
+      <h2 style="font-family: var(--font-heading); margin-top: 1rem; margin-bottom: 0.5rem;">No shops assigned yet</h2>
+      <p style="color: var(--text-muted); max-width: 500px; margin: 0 auto 1.5rem auto;">
+        You don't have any businesses assigned to your account. Please contact the Platform Administrator (sohan@gmail.com) to register and assign your business listing.
+      </p>
+    </div>
+
+    <!-- Active Management Grid -->
+    <div id="active-management-view" style="display: grid; grid-template-columns: 1.8fr 1fr; gap: 2rem; align-items: start;">
+      
+      <!-- Products management panel -->
+      <section class="glass-container" style="padding: 2rem; border-radius: var(--border-radius-lg); background-color: var(--bg-card);">
+        <div class="section-header">
+          <h2 style="font-family: var(--font-heading); font-size: 1.4rem;">Products & Menu Items</h2>
+          <button class="btn btn-primary btn-sm" onclick="openItemModal('add')">✚ Add Product</button>
+        </div>
+
+        <div class="table-responsive" style="box-shadow: none; border-radius: var(--border-radius-sm);">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Product Name</th>
+                <th>Description</th>
+                <th>Price</th>
+                <th style="width: 130px; text-align: center;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="products-table-body">
+              <!-- Loaded dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Customer Reviews panel -->
+      <section class="glass-container" style="padding: 2rem; border-radius: var(--border-radius-lg); background-color: var(--bg-card);">
+        <h2 style="font-family: var(--font-heading); font-size: 1.4rem; margin-bottom: 1.5rem;">Customer Reviews</h2>
+        
+        <div class="reviews-list" id="shop-reviews-list" style="max-height: 500px; overflow-y: auto;">
+          <!-- Loaded dynamically -->
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Add / Edit Item Modal -->
+  <div class="modal-overlay" id="item-modal">
+    <div class="modal-container" style="max-width: 480px;">
+      <div class="modal-header">
+        <h2 id="item-modal-title" style="font-family: var(--font-heading);">Add Product</h2>
+        <button class="modal-close-btn" onclick="closeItemModal()">×</button>
+      </div>
+
+      <div class="modal-body">
+        <form id="item-form" onsubmit="handleItemSubmit(event)">
+          <div class="form-group">
+            <label for="item-name">Product Name *</label>
+            <input type="text" id="item-name" class="form-control" placeholder="e.g. Pepperoni Pizza, Hair Styling" required>
+          </div>
+
+          <div class="form-group">
+            <label for="item-description">Description</label>
+            <textarea id="item-description" class="form-control" placeholder="Short description of the product or service..." rows="3"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="item-price">Price ($) *</label>
+            <input type="number" id="item-price" class="form-control" placeholder="0.00" step="0.01" min="0" required>
+          </div>
+
+          <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+            <button type="button" class="btn btn-secondary" onclick="closeItemModal()" style="flex: 1;">Cancel</button>
+            <button type="submit" class="btn btn-primary" style="flex: 1;" id="item-submit-btn">Save Product</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/auth.js"></script>
+  <script src="/js/shopkeeper.js"></script>
+</body>
+</html>
